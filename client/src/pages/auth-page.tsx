@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,10 +26,11 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
 
   // Redirect if already logged in
-  if (user) {
-    setLocation("/");
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      setLocation("/");
+    }
+  }, [user, setLocation]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
