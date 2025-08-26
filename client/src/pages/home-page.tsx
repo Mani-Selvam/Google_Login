@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertTodoSchema, type Todo } from "@shared/schema";
@@ -32,6 +33,7 @@ type TodoFormData = z.infer<typeof insertTodoSchema>;
 export default function HomePage() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   const { data: todos = [], isLoading } = useQuery<Todo[]>({
     queryKey: ["/api/todos"],
@@ -92,6 +94,16 @@ export default function HomePage() {
     },
   });
 
+  const editForm = useForm<TodoFormData>({
+    resolver: zodResolver(insertTodoSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      date: "",
+      time: "",
+    },
+  });
+
   const onSubmit = (data: TodoFormData) => {
     addTodoMutation.mutate(data);
   };
@@ -106,6 +118,30 @@ export default function HomePage() {
   const deleteTodo = (id: string) => {
     if (confirm("Are you sure you want to delete this task?")) {
       deleteTodoMutation.mutate(id);
+    }
+  };
+
+  const startEdit = (todo: Todo) => {
+    setEditingTodo(todo);
+    editForm.reset({
+      name: todo.name,
+      email: todo.email || "",
+      date: todo.date,
+      time: todo.time,
+    });
+  };
+
+  const onUpdateSubmit = (data: TodoFormData) => {
+    if (editingTodo) {
+      updateTodoMutation.mutate({
+        id: editingTodo.id,
+        updates: data,
+      });
+      setEditingTodo(null);
+      toast({
+        title: "Success",
+        description: "Task updated successfully!",
+      });
     }
   };
 
@@ -348,6 +384,15 @@ export default function HomePage() {
                             <Button
                               variant="ghost"
                               size="sm"
+                              onClick={() => startEdit(todo)}
+                              className="text-gray-400 hover:text-blue-600"
+                              data-testid={`button-edit-${todo.id}`}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => deleteTodo(todo.id)}
                               className="text-gray-400 hover:text-red-600"
                               data-testid={`button-delete-${todo.id}`}
@@ -365,6 +410,114 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+
+      {/* Edit Todo Dialog */}
+      <Dialog open={!!editingTodo} onOpenChange={() => setEditingTodo(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          {editingTodo && (
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="What needs to be done?"
+                          data-testid="input-edit-todo-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Related Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          value={field.value || ""}
+                          type="email" 
+                          placeholder="Contact email (optional)"
+                          data-testid="input-edit-todo-email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={editForm.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="date"
+                            data-testid="input-edit-todo-date"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Time</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="time"
+                            data-testid="input-edit-todo-time"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setEditingTodo(null)}
+                    data-testid="button-cancel-edit"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={updateTodoMutation.isPending}
+                    data-testid="button-save-edit"
+                  >
+                    {updateTodoMutation.isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
