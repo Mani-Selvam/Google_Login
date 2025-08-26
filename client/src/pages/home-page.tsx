@@ -32,7 +32,6 @@ type TodoFormData = z.infer<typeof insertTodoSchema>;
 export default function HomePage() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
-  const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
 
   const { data: todos = [], isLoading } = useQuery<Todo[]>({
     queryKey: ["/api/todos"],
@@ -114,15 +113,6 @@ export default function HomePage() {
     logoutMutation.mutate();
   };
 
-  const filteredTodos = todos.filter(todo => {
-    if (filter === "pending") return !todo.completed;
-    if (filter === "completed") return todo.completed;
-    return true;
-  });
-
-  const totalTodos = todos.length;
-  const completedTodos = todos.filter(t => t.completed).length;
-  const pendingTodos = totalTodos - completedTodos;
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -284,118 +274,19 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Stats Card */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Task Statistics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Tasks</span>
-                  <span className="font-semibold text-gray-900" data-testid="stat-total">
-                    {totalTodos}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completed</span>
-                  <span className="font-semibold text-green-600" data-testid="stat-completed">
-                    {completedTodos}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Pending</span>
-                  <span className="font-semibold text-primary" data-testid="stat-pending">
-                    {pendingTodos}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Statistics */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-2 bg-blue-100 rounded-full">
-                      <ListTodo className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Tasks</p>
-                      <p className="text-2xl font-bold text-gray-900" data-testid="stat-total-tasks">{totalTodos}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-2 bg-yellow-100 rounded-full">
-                      <Clock className="h-4 w-4 text-yellow-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Pending</p>
-                      <p className="text-2xl font-bold text-yellow-600" data-testid="stat-pending-tasks">{pendingTodos}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-2 bg-green-100 rounded-full">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Completed</p>
-                      <p className="text-2xl font-bold text-green-600" data-testid="stat-completed-tasks">{completedTodos}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Todo List */}
+          {/* Todo List */}
+          <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    <ListTodo className="text-primary mr-2 h-5 w-5" />
-                    Your Tasks
-                  </CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant={filter === "all" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setFilter("all")}
-                      data-testid="filter-all"
-                    >
-                      All
-                    </Button>
-                    <Button
-                      variant={filter === "pending" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setFilter("pending")}
-                      data-testid="filter-pending"
-                    >
-                      Pending
-                    </Button>
-                    <Button
-                      variant={filter === "completed" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setFilter("completed")}
-                      data-testid="filter-completed"
-                    >
-                      Completed
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center">
+                  <ListTodo className="text-primary mr-2 h-5 w-5" />
+                  Your Tasks
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                {filteredTodos.length === 0 ? (
+                {todos.length === 0 ? (
                   <div className="p-12 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <ListTodo className="h-8 w-8 text-gray-400" />
@@ -405,7 +296,7 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
-                    {filteredTodos.map((todo) => (
+                    {todos.map((todo) => (
                       <div 
                         key={todo.id} 
                         className="p-4 hover:bg-gray-50 transition-colors"
