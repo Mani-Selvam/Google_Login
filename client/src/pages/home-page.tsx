@@ -221,6 +221,7 @@ export default function HomePage() {
                           <FormControl>
                             <Input 
                               {...field} 
+                              value={field.value || ""}
                               type="email" 
                               placeholder="Contact email (optional)"
                               data-testid="input-todo-email"
