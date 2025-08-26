@@ -312,8 +312,53 @@ export default function HomePage() {
             </Card>
           </div>
 
-          {/* Todo List */}
-          <div className="lg:col-span-2">
+          {/* Statistics */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-blue-100 rounded-full">
+                      <ListTodo className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Tasks</p>
+                      <p className="text-2xl font-bold text-gray-900" data-testid="stat-total-tasks">{totalTodos}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-yellow-100 rounded-full">
+                      <Clock className="h-4 w-4 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Pending</p>
+                      <p className="text-2xl font-bold text-yellow-600" data-testid="stat-pending-tasks">{pendingTodos}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Completed</p>
+                      <p className="text-2xl font-bold text-green-600" data-testid="stat-completed-tasks">{completedTodos}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Todo List */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
