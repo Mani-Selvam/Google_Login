@@ -52,7 +52,7 @@ export default function AuthPage() {
   const onLogin = async (data: LoginFormData) => {
     try {
       await loginMutation.mutateAsync(data);
-      setLocation("/");
+      // Don't navigate here - let useEffect handle it when user state changes
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -61,7 +61,7 @@ export default function AuthPage() {
   const onSignup = async (data: SignupFormData) => {
     try {
       await registerMutation.mutateAsync(data);
-      setLocation("/");
+      // Don't navigate here - let useEffect handle it when user state changes
     } catch (error) {
       // Error is handled by the mutation
     }
