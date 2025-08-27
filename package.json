@@ -5,7 +5,7 @@
     "license": "MIT",
     "scripts": {
         "dev": "cross-env NODE_ENV=development tsx server/index.ts",
-        "build": "vite build --outDir dist/client && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+        "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
         "start": "cross-env NODE_ENV=production node dist/index.js",
         "check": "tsc",
         "db:push": "dotenv -e ../.env -- drizzle-kit push"
@@ -56,6 +56,7 @@
         "express-session": "^1.18.2",
         "framer-motion": "^11.13.1",
         "google-auth-library": "^10.3.0",
+        "init": "^0.1.2",
         "input-otp": "^1.4.2",
         "lucide-react": "^0.453.0",
         "memorystore": "^1.6.7",
