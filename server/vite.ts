@@ -47,14 +47,12 @@ export async function setupVite(app: Express, server?: Server) {
         const url = req.originalUrl;
 
         try {
-            // Fix the path resolution - go up from server directory to project root, then to client
             const clientTemplate = path.resolve(
                 process.cwd(),
                 "client",
                 "index.html"
             );
 
-            // Check if file exists before trying to read it
             if (!fs.existsSync(clientTemplate)) {
                 throw new Error(`Template file not found: ${clientTemplate}`);
             }
@@ -77,37 +75,57 @@ export async function setupVite(app: Express, server?: Server) {
 }
 
 export function serveStatic(app: Express) {
-    // Use process.cwd() to get the project root, then look for dist/public
-    const distPath = path.resolve(process.cwd(), "dist");
-
-    // Also try alternative paths
-    const altPaths = [
-        path.resolve(process.cwd(), "public"),
-        path.resolve(process.cwd(), "client", "dist"),
-        path.resolve(process.cwd(), "build"),
+    // Check multiple possible build directories
+    const possiblePaths = [
+        path.resolve(process.cwd(), "dist", "client"), // Most likely for Vite builds
+        path.resolve(process.cwd(), "client", "dist"), // Alternative structure
+        path.resolve(process.cwd(), "dist"), // Simple dist folder
+        path.resolve(process.cwd(), "build"), // Create React App style
+        path.resolve(process.cwd(), "public"), // Public folder
     ];
 
-    let actualDistPath = distPath;
+    let distPath = null;
 
-    // Find the correct dist path
-    if (!fs.existsSync(distPath)) {
-        const foundPath = altPaths.find((p) => fs.existsSync(p));
-        if (foundPath) {
-            actualDistPath = foundPath;
-        } else {
-            throw new Error(
-                `Could not find the build directory. Tried: ${[
-                    distPath,
-                    ...altPaths,
-                ].join(", ")}`
-            );
+    // Find the first path that exists
+    for (const testPath of possiblePaths) {
+        console.log(`Checking for build files at: ${testPath}`);
+        if (fs.existsSync(testPath)) {
+            // Check if it has an index.html file
+            const indexPath = path.join(testPath, "index.html");
+            if (fs.existsSync(indexPath)) {
+                distPath = testPath;
+                console.log(`Found build files at: ${distPath}`);
+                break;
+            }
         }
     }
 
-    app.use(express.static(actualDistPath));
+    if (!distPath) {
+        console.error("Build files not found in any of these locations:");
+        possiblePaths.forEach((p) => console.error(`  - ${p}`));
+
+        // List what's actually in the current directory
+        console.log("Contents of current directory:", process.cwd());
+        try {
+            const contents = fs.readdirSync(process.cwd());
+            contents.forEach((item) => {
+                const itemPath = path.join(process.cwd(), item);
+                const isDir = fs.statSync(itemPath).isDirectory();
+                console.log(`  ${isDir ? "📁" : "📄"} ${item}`);
+            });
+        } catch (e) {
+            console.error("Error reading directory:", e);
+        }
+
+        throw new Error(
+            "Build files not found. Please build the client first."
+        );
+    }
+
+    app.use(express.static(distPath));
 
     app.use("*", (_req, res) => {
-        const indexPath = path.resolve(actualDistPath, "index.html");
+        const indexPath = path.resolve(distPath, "index.html");
         if (fs.existsSync(indexPath)) {
             res.sendFile(indexPath);
         } else {
