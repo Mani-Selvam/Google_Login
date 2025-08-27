@@ -10,26 +10,26 @@ import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
-  return (
-    <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
-      <Route path="/auth" component={AuthPage} />
-      <Route component={NotFound} />
-    </Switch>
-  );
+    return (
+        <Switch>
+            <ProtectedRoute path="/" component={HomePage} />
+            <Route path="/auth" component={AuthPage} />
+            <Route path="/no" component={NotFound} />
+        </Switch>
+    );
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <TooltipProvider>
+                    <Toaster />
+                    <Router />
+                </TooltipProvider>
+            </AuthProvider>
+        </QueryClientProvider>
+    );
 }
 
 export default App;
