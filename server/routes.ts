@@ -35,7 +35,7 @@ export function registerRoutes(app: Express): Server {
 
     // ✅ Get all todos for authenticated user ONLY
     app.get(
-        "/api/todos",
+        "https://google-login-todo-app.onrender.com/api/todos",
         requireUser,
         async (req: AuthenticatedRequest, res: Response) => {
             try {
@@ -61,7 +61,7 @@ export function registerRoutes(app: Express): Server {
 
     // ✅ Create new todo for authenticated user
     app.post(
-        "/api/todos",
+        "https://google-login-todo-app.onrender.com/api/todos",
         requireUser,
         async (req: AuthenticatedRequest, res: Response) => {
             try {
@@ -94,7 +94,7 @@ export function registerRoutes(app: Express): Server {
 
     // ✅ Update existing todo (only if owned by user)
     app.patch(
-        "/api/todos/:id",
+        "https://google-login-todo-app.onrender.com/api/todos/:id",
         requireUser,
         async (req: AuthenticatedRequest, res: Response) => {
             try {
@@ -131,7 +131,7 @@ export function registerRoutes(app: Express): Server {
 
     // ✅ Delete todo (only if owned by user)
     app.delete(
-        "/api/todos/:id",
+        "https://google-login-todo-app.onrender.com/api/todos/:id",
         requireUser,
         async (req: AuthenticatedRequest, res: Response) => {
             try {
