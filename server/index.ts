@@ -26,16 +26,17 @@ app.use(
 // Session middleware (only set up once)
 app.use(
     session({
-        secret: process.env.SESSION_SECRET,
+        secret:
+            process.env.SESSION_SECRET || "change_this_secret_in_production",
         resave: false,
         saveUninitialized: false,
-        cookie: {
-            secure: true, // because Render uses HTTPS
-            httpOnly: true,
-            sameSite: "none", // required for cross-origin
-            maxAge: 24 * 60 * 60 * 1000,
-        },
         store: storage.sessionStore,
+        cookie: {
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        },
     })
 );
 
@@ -56,7 +57,7 @@ app.use(
         serveStatic(app);
     }
 
-    const PORT = process.env.PORT || 5174;
+    const PORT = process.env.PORT || 5000;
     httpServer.listen(PORT, () => {
         console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
